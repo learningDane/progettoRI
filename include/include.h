@@ -13,10 +13,15 @@
 #include <string.h>
 #include <sys/select.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+//#include <sys/types.h>
 
 #define PORTA_LAVAGNA 5678
 #define LOCALHOST "127.0.0.1"
 #define BACKLOG 3
+#define DEBUG 1
 
 // typedef
 typedef int utente_t;
@@ -28,33 +33,15 @@ typedef struct card card_t;
  *
  */
 struct card {
-    int ID;
+    uint16_t ID;
     //int colonna; // 0 1 2 : ToDo Doing Done
     char *descrizione; // testo attività
     int responsabile; // n. di porta dell'utente che la implementa o la ha implementata
     time_t timestampUltimaModifica;
 };
 
-// funzioni
+////////////////////////////// funzioni
 
-
-/*
- * @brief Mostra la lavagna a video
- *
- * Stampa la lavagna, con le colonne e le card assegnate nelle giuste colonne
- *
- * @param void
- */
-void SHOW_LAVAGNA();
-
-/*
- * @brief Registrazione
- *
- *  Lavagna risponde con card in ToDo
- *
- * @param
- */
-void HELLO();
 
 /*
  * @brief Notifica uscita alla lavagna
@@ -105,7 +92,7 @@ void ACK_CARD(card_t cartaAssegnata);
 void CARD_DONE();
 
 /*
- * @brief Sposta la card nella colonna corretta
+ * @brief La lavagna sposta la card nella colonna corretta
  *
  * @param
  */

@@ -25,6 +25,7 @@ Ho optato per rendere la lavagna iterativa (non concorrente) nel servire le conn
     \item la sincronizzazione è più semplice
     \item non serve concorrenza perché la lavagna esegue solo operazioni I/O bound leggere
 \end{enumerate}
+Tengo dunque traccia degli utenti connessi tramite una lista, in modo da non dover definire un numero massimo di utenti contemporaneamente connessi.
 
 \subsection*{Struttura dei pacchetti}
 

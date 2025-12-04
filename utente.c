@@ -1,11 +1,4 @@
-#include "include/include.h"
-#include <stdio.h>
-
-int rando() {
-    srand(time(NULL));
-    int n = rand();
-    return n;
-}
+#include "libs/lib_utente.c"
 
 int main (int argc, char *argv[]) {
     if (argc != 2) {
@@ -21,7 +14,9 @@ int main (int argc, char *argv[]) {
 
     // connessione TCP bloccante alla lavagna
     int port = htons(atoi(argv[1]));
-    printf("porta da collegare: %d\n", port);
+    if (DEBUG) {
+        printf("porta da collegare: %d\n", port);
+    }
 
     // addr mio
     struct sockaddr_in my_addr, lavagna;
@@ -38,21 +33,20 @@ int main (int argc, char *argv[]) {
     inet_pton(AF_INET, LOCALHOST, &lavagna.sin_addr);
 
     int mysock = socket(AF_INET, SOCK_STREAM, 0);
-    printf("Aperto socket %d\n", mysock);
+    if (DEBUG) {
+        printf("Aperto socket %d\n", mysock);
+    }
 
     int err_bind = bind(mysock, (struct sockaddr*)&my_addr, (socklen_t)sizeof(my_addr));
     if (err_bind) {
         perror("errore su bind: ");
         return -1;
     }
-    printf("Socket collegato\n");
-
-    int err_connect = connect(mysock, (const struct sockaddr*)&lavagna, (socklen_t)sizeof(lavagna));
-    if (err_connect) {
-        perror("Errore connect: ");
-        return -1;
+    if (DEBUG) {
+        printf("Socket collegato\n");
     }
-    printf("Connesso alla lavagna\n");
+
+    HELLO(&mysock,&lavagna);
 
 
     // prima azione è registrazione

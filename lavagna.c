@@ -1,76 +1,8 @@
-#include "include/include.h"
-#include <stdio.h>
-#include <string.h>
-
-int utentiConnessi = 0;
-card_t *testaToDo = NULL;
-card_t *testaDoing = NULL;
-card_t *testaDone = NULL;
-// mysock è il socket di ascolto
-int mysock;
-struct sockaddr utente;
-socklen_t utenteLen;
-
-struct utente_des {
-    utente_t utente;
-    int des;
-    struct utente_des*prox;
-};
-
-struct utente_des * testa_des_utente = NULL;
-
-/* @brief Restituisce il puntatore all'ultimo descrittore di socket per utente
- *
- * @param puntatore alla lista di descrittori da scorrere
- */
-struct utente_des* scorri_lista (struct utente_des* des_attuale) {
-    while (des_attuale->prox != NULL) {
-        des_attuale = des_attuale->prox;
-    }
-    return des_attuale->prox;
-}
-
-void accetta_utente() {
-    int utente_sock = accept(mysock, (struct sockaddr *)&utente, (socklen_t *)&utenteLen);
-    if (errno) {
-        perror("errore su accept: ");
-        exit(-1);
-    }
-    printf("richiesta di connessione accettata\n");
-
-    // aggiungi sock alla lista di des_utenti
-    struct utente_des nuovo_utente;
-    nuovo_utente.utente = 0;
-    nuovo_utente.des = utente_sock;
-    nuovo_utente.prox = NULL;
-
-    struct utente_des*ultimo_utente = scorri_lista(testa_des_utente);
-    ultimo_utente->prox = &nuovo_utente;
-    return;
-}
-
-// set di descrittori da controllare per la lettura
-fd_set readfds;
-
-/* @brief Aggiunge al set di descrittori readfds ogni socket da controllare con select()
- */
-void prepara_set() {
-    // aggiungo il descrittore del socket di ascolto
-    FD_SET(mysock, &readfds);
-
-    // aggiungo i descrittori dei socket connessi con gli utenti
-    struct utente_des*des_attuale = testa_des_utente;
-    do {
-        /* Aggiungere un descrittore al set */
-        FD_SET(des_attuale->des, &readfds);
-        des_attuale = des_attuale->prox;
-    }
-    while (des_attuale->prox != NULL);
-}
+#include "libs/lib_lavagna.c"
 
 int main () {
     // 1. mostra a video lo stato della lavagna
-    // SHOW_LAVAGNA();
+    SHOW_LAVAGNA();
 
     // ad ogni spostamento o creazione di una card, mostra la lavagna
 

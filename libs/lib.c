@@ -1,13 +1,5 @@
 #include "../include/include.h"
 
-void SHOW_LAVAGNA() {
-    // stampa la lavagna, con le colonne e le card assegnate nelle giuste colonne
-}
-
-void HELLO() {
-    // lavagna risponde con card in ToDo
-}
-
 void QUIT () {
     // notifica uscita alla lavagna
     // se avevo carda in Doing, finisce in ToDo
@@ -37,6 +29,9 @@ void CARD_DONE() {
 
 void MOVE_CARD(card_t cartaDaSpostare) {
     // sposta la card nella colonna corretta
+
+    // infine mostra la lavagna
+    //SHOW_LAVAGNA();
 }
 
 void SEND_USER_LIST() {
