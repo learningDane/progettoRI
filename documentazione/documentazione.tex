@@ -1,0 +1,49 @@
+% preamble:
+\documentclass[12pt,a4paper, titlepage]{article}
+\usepackage[a4paper, margin=1in]{geometry}  % Adjust margin size
+% \usepackage{amsmath}
+% \usepackage{graphicx}
+% \usepackage{hyperref}
+
+
+\author{Davide Squeri}
+\title{Documentazione Progetto Reti Informatiche\\[0.3em]
+\large{Anno Accademico 2025/2026, matricola pari}}
+\date{19/02/2025}
+
+% document
+\begin{document}
+\maketitle
+
+\section*{Documentazione}
+\subsection*{Scelta del Protocollo di Trasporto}
+
+\subsection*{Scelta del tipo di concorrenza per la Lavagna}
+Ho optato per rendere la lavagna iterativa (non concorrente) nel servire le connessioni con gli utenti poiché:
+\begin{enumerate}
+    \item l'approccio iterativo risparmia overhead
+    \item la sincronizzazione è più semplice
+    \item non serve concorrenza perché la lavagna esegue solo operazioni I/O bound leggere
+\end{enumerate}
+
+\subsection*{Struttura dei pacchetti}
+
+\subsection*{Modalità di scambio dei dati (text/binary)}
+
+\subsection*{Gestione dei socket}
+
+\section*{Istruzioni sulla Compilazione}
+Comando per compilare il progetto:
+\begin{verbatim}
+make all
+\end{verbatim}
+Comando per rimuovere i file oggetto:
+\begin{verbatim}
+make clean
+\end{verbatim}
+Il comando crea i due file eseguibili richiesti nella root directory del progetto.
+Per eseguirli si può proseguire come indicato nelle specifiche del progetto.
+
+
+
+\end{document}
