@@ -20,6 +20,11 @@ UTENTE_OBJ  = $(UTENTE_SRC:%.c=$(OBJPATH)/%.o)
 LAVAGNA_EXECUTABLE_NAME = lavagna
 UTENTE_EXECUTABLE_NAME  = utente
 
+# dependencies
+$(OBJPATH)/lavagna.o: include/include.h include/include_lavagna.h libs/lib_lavagna.c libs/lib.c
+$(OBJPATH)/utente.o:  include/include.h include/include_utente.h libs/lib_utente.c libs/lib.c
+$(OBJPATH)/libs/lib.o: include/include.h
+
 # build both
 all: $(LAVAGNA_EXECUTABLE_NAME) $(UTENTE_EXECUTABLE_NAME)
 
