@@ -46,14 +46,34 @@ int main () {
     ////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    int n = 0; // = numero di descrittori da controllare
-    FD_ZERO(&readfds);
-    select(n, &readfds, NULL, NULL, /*timeout*/NULL);
-    /*
-    select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds, fd_set *restrict errorfds, struct timeval *restrict timeout);
-    */
+    int n;
 
-    accetta_utente();
+    FD_ZERO(&readfds);
+    prepara_set();
+    n = select(utentiConnessi+2, &readfds, NULL, NULL, /*timeout*/NULL);
+    if (n == -1) {
+        printf("errore select\n");
+        exit(-1);
+    }
+
+    // 1. controllo input da terminale
+        if (FD_ISSET(STDIN_FILENO, &readfds)) {
+            // leggi il comando dalla riga di comando
+            if (fgets(comando, sizeof(comando), stdin) != NULL) {
+                // Processa il comando letto
+                handle_terminal_input(comando);
+            }
+        }
+
+    // 2. Controllo nuove connessioni
+    if (FD_ISSET(mysock, &readfds)) {
+        accetta_utente();
+    }
+
+    // 3. controlla connessioni esistenti
+    else if (n > 0) { // qualche descrittore è pronto, ma non è ne stdin ne mysock, quindi è una connessione esistente
+
+    }
 }
 
 /*

@@ -26,6 +26,7 @@ Ho optato per rendere la lavagna iterativa (non concorrente) nel servire le conn
     \item non serve concorrenza perché la lavagna esegue solo operazioni I/O bound leggere
 \end{enumerate}
 Tengo dunque traccia degli utenti connessi tramite una lista, in modo da non dover definire un numero massimo di utenti contemporaneamente connessi.
+Con un solo thread devo dunque, controllare se ci sono nuove connessioni, gestire quelle esistenti e controllare l'input da terminale (stdin), aggiungo tutti questi descrittori al controllo della select e gestisco in ordine stdin, le nuove connessioni ed infine le connesioni già stabilite.
 
 \subsection*{Struttura dei pacchetti}
 
@@ -44,6 +45,9 @@ make clean
 \end{verbatim}
 Il comando crea i due file eseguibili richiesti nella root directory del progetto.
 Per eseguirli si può proseguire come indicato nelle specifiche del progetto.
+
+\section{domande prof.sa Righetti}
+Le specifiche dicono che appena lanciata, la lavagna deve stamparsi, con le carte nelle relative posizioni, ma quando la lavagna è inizialmente non ci sono carte dentro, o sbaglio? La lavagna deve essere inizializzata con qualche carta?
 
 
 

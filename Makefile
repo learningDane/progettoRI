@@ -41,7 +41,7 @@ $(OBJPATH)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # compilare la documentazione (necessita di una installazione latex)
-documentazione.pdf: documentazione/documentazione.tex
+documentazione: documentazione/documentazione.tex
 	cd documentazione && pdflatex documentazione.tex && mv documentazione.pdf ./pdfoutput/ && cd ..
 
 clean:

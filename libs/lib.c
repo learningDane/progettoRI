@@ -1,5 +1,8 @@
 #include "../include/include.h"
 
+// 0=utente 1=lavagna
+int selettore;
+
 void QUIT () {
     // notifica uscita alla lavagna
     // se avevo carda in Doing, finisce in ToDo

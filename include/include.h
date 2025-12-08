@@ -21,7 +21,7 @@
 #define PORTA_LAVAGNA 5678
 #define LOCALHOST "127.0.0.1"
 #define BACKLOG 3
-#define DEBUG 1
+#define DEBUG 1 // 1=stampa messaggi di debug
 
 // typedef
 typedef int utente_t;

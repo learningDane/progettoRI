@@ -46,7 +46,12 @@ int main (int argc, char *argv[]) {
         printf("Socket collegato\n");
     }
 
-    HELLO(&mysock,&lavagna);
+    //HELLO(&mysock,&lavagna);
+
+    while(1) {
+        // input
+        // valida input
+    }
 
 
     // prima azione è registrazione
