@@ -25,3 +25,13 @@ void accetta_utente();
  * @param puntatore alla lista di descrittori da scorrere
  */
 struct utente_des* scorri_lista (struct utente_des* des_attuale);
+
+/* @brief Stampa la lista di utenti attualmente connessi
+ *
+ */
+void STAMPA_UTENTI();
+
+/* @brief Legge e gestisce l'input da terminale
+ *
+ */
+void input_stdin();

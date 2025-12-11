@@ -21,7 +21,9 @@
 #define PORTA_LAVAGNA 5678
 #define LOCALHOST "127.0.0.1"
 #define BACKLOG 3
-#define DEBUG 1 // 1=stampa messaggi di debug
+#define DEBUG 1 // 1=stampa messaggi di debug , 0=non stampa messaggi di debug
+#define NUMERO_COMANDI_DISPONIBILI 7
+#define MAX_LEN_COMANDO 14
 
 // typedef
 typedef int utente_t;
@@ -43,82 +45,8 @@ struct card {
 ////////////////////////////// funzioni
 
 
-/*
- * @brief Notifica uscita alla lavagna
- *
- * Se aveva una carta in Doing, finisce in ToDo
- *
+/* @brief Valida un comando inserito da terminale e ne restituisce il relativo ID
  * @param
+ * buf : puntatore al buffer dove è salvata la stringa (terminata da \0, senza \n)
  */
-void QUIT ();
-
-/*
- * @brief Risponde al PING_UTENTE
- *
- * @param
- */
-void PONG_LAVAGNA();
-
-/*
- * @brief Comunico alla lavagna una nuova carta
- *
- * Serve ID, colonna, e testo attività
- *
- * @param
- */
-void CREATE_CARD(card_t nuovaCarta);
-
-/*
- * @brief Assegnamento della carta discussa tramite consenso
- *
- * Messaggio che si scambiano gli utenti, associando un costo all'esecuzione della card attualmente discussa gli utenti convergono nell'assegnare la card all'utente che ha il costo minore
- *
- * @param
- */
-void CHOOSE_USER();
-
-/*
- * @brief Comunica alla lavagna la card che gli è stata assegnata
- *
- * @param
- */
-void ACK_CARD(card_t cartaAssegnata);
-
-/*
- * @brief Comunica alla lavagna la terminazione dell'attività assegnata
- *
- * @param
- */
-void CARD_DONE();
-
-/*
- * @brief La lavagna sposta la card nella colonna corretta
- *
- * @param
- */
-void MOVE_CARD(card_t cartaDaSpostare);
-
-/*
- * @brief Manda lista delle porte degli utenti
- *
- * @param
- */
-void SEND_USER_LIST();
-
-/*
- * @brief Pinga un utente dopo un timeout
- *
- * Restituisce 0 se l'utente risponde (entro 30 secondi), -1 altrimenti
- * @param utente_t utente
- */
-int PING_USER(utente_t utente);
-
-/*
- * @brief Invia la card da assegnare
- *
- * Quando c'è più di un utente registrato, la lavagna invia a tutti gli utenti connessi la prima card in ToDo.
- * Oltre alla card include la lista delle porte degli utenti presenti (escluso il destinatario), e il numero degli utenti presenti
- *
- * @param
- */
-void AVAILABLE_CARD(card_t cartaDisponibile);
+int VALIDA_INPUT(const char*buf);

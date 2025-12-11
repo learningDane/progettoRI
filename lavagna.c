@@ -1,4 +1,5 @@
 #include "libs/lib_lavagna.c"
+#include <stdio.h>
 
 int main () {
     // 1. mostra a video lo stato della lavagna
@@ -20,8 +21,9 @@ int main () {
     // accettazione connessioni TCP dagli utenti tramite socket non bloccanti e I/O multiplexing
     // connessione TCP bloccante
 
-    struct sockaddr_in my_addr, utente;
-    int utenteLen = sizeof(utente);
+    struct sockaddr_in my_addr;
+    // struct sockaddr_in utente;
+    //int utenteLen = sizeof(utente);
     memset(&my_addr, 0, (size_t)sizeof(my_addr));
     my_addr.sin_family = AF_INET;
     my_addr.sin_port = port;
@@ -46,33 +48,47 @@ int main () {
     ////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    int n;
 
-    FD_ZERO(&readfds);
-    prepara_set();
-    n = select(utentiConnessi+2, &readfds, NULL, NULL, /*timeout*/NULL);
-    if (n == -1) {
-        printf("errore select\n");
-        exit(-1);
-    }
+    int des_pronti = 0;
 
-    // 1. controllo input da terminale
-        if (FD_ISSET(STDIN_FILENO, &readfds)) {
-            // leggi il comando dalla riga di comando
-            if (fgets(comando, sizeof(comando), stdin) != NULL) {
-                // Processa il comando letto
-                handle_terminal_input(comando);
-            }
+    while(1) {
+        FD_ZERO(&readfds);
+        prepara_set();
+        if (DEBUG) {
+            printf("Controllo socket con select()...\n");
+        }
+        des_pronti = select(max_des + 1, &readfds, NULL, NULL, /*timeout*/NULL);
+
+        if (DEBUG) {
+            printf("numero di descrittori pronti: %d\n",des_pronti);
         }
 
-    // 2. Controllo nuove connessioni
-    if (FD_ISSET(mysock, &readfds)) {
-        accetta_utente();
-    }
+        if (des_pronti == -1) {
+            printf("errore select\n");
+            exit(-1);
+        }
 
-    // 3. controlla connessioni esistenti
-    else if (n > 0) { // qualche descrittore è pronto, ma non è ne stdin ne mysock, quindi è una connessione esistente
+        // 1. controllo input da terminale
+        if (FD_ISSET(STDIN_FILENO, &readfds)) {
+            // leggi il comando dalla riga di comando
+            /*
+            if (fgets(comando, sizeof(comando), stdin) != NULL) {
+                // Processa il comando letto
+                //handle_terminal_input(comando);
+            }
+             */
+            input_stdin();
+        }
 
+        // 2. Controllo nuove connessioni
+        if (FD_ISSET(mysock, &readfds)) {
+            accetta_utente();
+        }
+
+        // 3. controlla connessioni esistenti
+        else if (des_pronti > 0) { // qualche descrittore è pronto, ma non è ne stdin ne mysock, quindi è una connessione esistente
+
+        }
     }
 }
 

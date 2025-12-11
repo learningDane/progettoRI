@@ -1,53 +1,36 @@
 #include "../include/include.h"
+#include <stdio.h>
+#include <string.h>
 
 // 0=utente 1=lavagna
-int selettore;
+// int selettore;
 
-void QUIT () {
-    // notifica uscita alla lavagna
-    // se avevo carda in Doing, finisce in ToDo
-}
+const char *comandi[] = { // numero di comandi disponibili (NUMERO_COMANDI_CORRETTI in include/include.h)
+    "CREATE_CARD", // solo utente 0
+    "HELLO", // solo utente 1
+    "QUIT", // solo utente 2
+    "ACK_CARD", // solo utente 3
+    "CARD_DONE", // solo utente 4
 
-void PONG_LAVAGNA() {
-    // contatta lavagna
-}
+    "SEND_USER_LIST", // solo lavagna 5
+    "SHOW_LAVAGNA" // solo lavagna 6
 
-void CREATE_CARD(card_t nuovaCarta) {
-    // comunico alla lavagna una nuova carta
-    // serve ID, colonna, e testo attività
-}
+    // il comando più lungo è di 14 caratteri (tieni di conto in più di \n e \0)
+    // MAX_LEN_COMANDO in include/include.h
+};
 
-void CHOOSE_USER() {
-    // messaggio che si scambiano gli utenti, associando un costo all'esecuzione della card attualmente discussa
-    // gli utenti convergono nell'assegnare la card all'utente che ha il costo minore
-}
 
-void ACK_CARD(card_t cartaAssegnata) {
-    // comunica alla lavagna la card che gli è stata assegnata
-}
-
-void CARD_DONE() {
-    // comunica alla lavagna la terminazione della card
-}
-
-void MOVE_CARD(card_t cartaDaSpostare) {
-    // sposta la card nella colonna corretta
-
-    // infine mostra la lavagna
-    //SHOW_LAVAGNA();
-}
-
-void SEND_USER_LIST() {
-    // manda lista delle porte degli utenti
-}
-
-int PING_USER(utente_t utente) {
-    return 0; // 0 se utente risponde, -1 altrimenti
-}
-
-void AVAILABLE_CARD(card_t cartaDisponibile) {
-    // quando c'è più di un utente registrato, la lavagna invia a tutti gli utenti connessi la prima card in ToDo.
-    // oltre alla card include la lista delle porte degli utenti presenti (escluso il destinatario), e il numero degli utenti presenti
-
-    // quando un utente riceve un available card: geenera un "n" casuale
+int VALIDA_INPUT(const char*buf) {
+    // controlla che la stringa contenuta in buf sia contenuta in comandi[]
+    // la stringa deve essere priva di \n
+    for (int i = 0; i < NUMERO_COMANDI_DISPONIBILI; i++) {
+        if (strcmp(buf,comandi[i]) == 0) {
+            if (DEBUG) {
+                printf("corrispondenza trovata, ID = %d\n",i);
+            }
+            return i;
+        }
+    }
+    return -1;
+    // fgets include il \n se presente e aggiunge \0
 }

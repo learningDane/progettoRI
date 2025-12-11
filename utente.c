@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
     // connessione TCP bloccante alla lavagna
     int port = htons(atoi(argv[1]));
     if (DEBUG) {
-        printf("porta da collegare: %d\n", port);
+        printf("porta da collegare: %d\n", atoi(argv[1]));
     }
 
     // addr mio
@@ -26,7 +26,7 @@ int main (int argc, char *argv[]) {
     inet_pton(AF_INET, LOCALHOST, &my_addr.sin_addr);
 
     // addr lavagna
-    int lavagnaLen = sizeof(lavagna);
+    //int lavagnaLen = sizeof(lavagna);
     memset(&lavagna, 0, (size_t)sizeof(lavagna));
     lavagna.sin_family = AF_INET;
     lavagna.sin_port = PORTA_LAVAGNA;
@@ -48,9 +48,39 @@ int main (int argc, char *argv[]) {
 
     //HELLO(&mysock,&lavagna);
 
+    char buf[MAX_LEN_COMANDO + 2]; // buffer per il comando da terminale, dimensionato per il comando più lungo possibile + \n + \0
+
     while(1) {
-        // input
-        // valida input
+        printf("Inserire un comando:\n");
+        fgets(buf, sizeof(buf), stdin); // questo legge al più (numero di caratteri disponibili in buf - 1), ed in fondo aggiunge \0
+        // rimozione di \n:
+        for (int i = 0; buf[i] != '\0'; i++) {
+            if (buf[i] == '\n') {
+                buf[i] = '\0';
+            }
+        }
+        int ID_comando = VALIDA_INPUT(buf);
+        if (ID_comando < 0) {
+            printf("comando non riconosciuto. Riprovare...\n");
+        }
+        else if (ID_comando > 4) { // per ogni comando chiamare la funzione corretta
+            printf("Comando non disponibile agli utenti. Riprovare...\n");
+        }
+        else if (ID_comando == 0) {
+            CREATE_CARD();
+        }
+        else if (ID_comando == 1) {
+            HELLO(&mysock, (struct sockaddr_in *)&lavagna);
+        }
+        else if (ID_comando == 2) {
+            QUIT();
+        }
+        else if (ID_comando == 3) {
+            ACK_CARD();
+        }
+        else if (ID_comando == 4) {
+            CARD_DONE();
+        }
     }
 
 

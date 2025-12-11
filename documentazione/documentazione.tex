@@ -17,7 +17,7 @@
 
 \section*{Documentazione}
 \subsection*{Scelta del Protocollo di Trasporto}
-
+TCP per le comunicazioni Utente - Lavagna. La TCP handshake funziona da HELLO, o meglio il comando HELLO causa la TCP handshake.
 \subsection*{Scelta del tipo di concorrenza per la Lavagna}
 Ho optato per rendere la lavagna iterativa (non concorrente) nel servire le connessioni con gli utenti poiché:
 \begin{enumerate}
@@ -34,6 +34,9 @@ Con un solo thread devo dunque, controllare se ci sono nuove connessioni, gestir
 
 \subsection*{Gestione dei socket}
 
+\section*{Scelte Varie}
+Ho optato per non rendere bloccante l'assegnazione di una Card: un utente quando riceve una card (Doing) non si blocca e continua a poter ricevere comandi da verticale.
+
 \section*{Istruzioni sulla Compilazione}
 Comando per compilare il progetto:
 \begin{verbatim}
@@ -47,8 +50,23 @@ Il comando crea i due file eseguibili richiesti nella root directory del progett
 Per eseguirli si può proseguire come indicato nelle specifiche del progetto.
 
 \section{domande prof.sa Righetti}
-Le specifiche dicono che appena lanciata, la lavagna deve stamparsi, con le carte nelle relative posizioni, ma quando la lavagna è inizialmente non ci sono carte dentro, o sbaglio? La lavagna deve essere inizializzata con qualche carta?
+\begin{enumerate}
+    \item Le specifiche dicono che appena lanciata, la lavagna deve stamparsi, con le carte nelle relative posizioni, ma quando la lavagna è inizialmente avviata non ci sono carte dentro, o sbaglio? La lavagna deve essere inizializzata con qualche carta? Risposta: se la lavagna non è stateless...
+    \item Come viene assegnato l'ID della lavagna e a cosa serve?
+\end{enumerate}
+\section{risposte}
+\begin{enumerate}
+    \item Quando l'utente lancia il comando CREATE_CARD, la colonna viene automaticamente assegnata dalla lavagna (ToDo), l'ID no, quindi va controllato che sia disponibile
+    \item Non tutti i comandi devono essere eseguibili da riga da comando (aggiungere HELP per i comandi disponibili?)
+    \item Quando un utente si blocca su una carta (Doing), non serve che il terminale dell'utente sia ancora interattivo (=> Sleep)
+    \item Quanto sopra comporta (se si sceglie di rendere il Doing bloccante) che l'utente possa creare carte solamente quando non ha card assegnate.
+    \item Le comunicazioni Utente - Utente NON devono passare dalla lavagna.
+\end{enumerate}
 
+\section{ToDo}
+\begin{enumerate}
+    \item distruttore quando disconnetto utente
+\end{enumerate}
 
 
 \end{document}
