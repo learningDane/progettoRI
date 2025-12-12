@@ -9,8 +9,8 @@ LIBPATH = libs
 INCLUDEPATH = include
 
 # source files
-LAVAGNA_SRC = lavagna.c $(LIBPATH)/lib.c
-UTENTE_SRC  = utente.c  $(LIBPATH)/lib.c
+LAVAGNA_SRC = lavagna.c $(LIBPATH)/lib.c $(LIBPATH)/lib_lavagna.c
+UTENTE_SRC  = utente.c  $(LIBPATH)/lib.c $(LIBPATH)/lib_utente.c
 
 # object files
 LAVAGNA_OBJ = $(LAVAGNA_SRC:%.c=$(OBJPATH)/%.o)

@@ -1,4 +1,4 @@
-#include "libs/lib_utente.c"
+#include "include/include_utente.h"
 
 int main (int argc, char *argv[]) {
     if (argc != 2) {
@@ -32,12 +32,12 @@ int main (int argc, char *argv[]) {
     lavagna.sin_port = PORTA_LAVAGNA;
     inet_pton(AF_INET, LOCALHOST, &lavagna.sin_addr);
 
-    int mysock = socket(AF_INET, SOCK_STREAM, 0);
+    mysock_utente = socket(AF_INET, SOCK_STREAM, 0);
     if (DEBUG) {
-        printf("Aperto socket %d\n", mysock);
+        printf("Aperto socket %d\n", mysock_utente);
     }
 
-    int err_bind = bind(mysock, (struct sockaddr*)&my_addr, (socklen_t)sizeof(my_addr));
+    int err_bind = bind(mysock_utente, (struct sockaddr*)&my_addr, (socklen_t)sizeof(my_addr));
     if (err_bind) {
         perror("errore su bind: ");
         return -1;
@@ -46,7 +46,7 @@ int main (int argc, char *argv[]) {
         printf("Socket collegato\n");
     }
 
-    //HELLO(&mysock,&lavagna);
+    //HELLO(&mysock_utente,&lavagna);
 
     char buf[MAX_LEN_COMANDO + 2]; // buffer per il comando da terminale, dimensionato per il comando più lungo possibile + \n + \0
 
@@ -63,22 +63,25 @@ int main (int argc, char *argv[]) {
         if (ID_comando < 0) {
             printf("comando non riconosciuto. Riprovare...\n");
         }
-        else if (ID_comando > 4) { // per ogni comando chiamare la funzione corretta
+        else if (ID_comando > 5) { // per ogni comando chiamare la funzione corretta
             printf("Comando non disponibile agli utenti. Riprovare...\n");
         }
-        else if (ID_comando == 0) {
-            CREATE_CARD();
+        else if (ID_comando == ID_HELLO) {
+            HELLO(&mysock_utente, (struct sockaddr_in *)&lavagna);
         }
-        else if (ID_comando == 1) {
-            HELLO(&mysock, (struct sockaddr_in *)&lavagna);
-        }
-        else if (ID_comando == 2) {
+        else if (ID_comando == ID_QUIT) {
             QUIT();
         }
-        else if (ID_comando == 3) {
+        else if (connesso == 0 && DEBUG == 0) {
+            printf("Comando non disponibile senza una connessione con la lavagna.\n");
+        }
+        else if (ID_comando == ID_CREATE_CARD) {
+            CREATE_CARD();
+        }
+        else if (ID_comando == ID_ACK_CARD) {
             ACK_CARD();
         }
-        else if (ID_comando == 4) {
+        else if (ID_comando == ID_CARD_DONE) {
             CARD_DONE();
         }
     }
@@ -92,6 +95,6 @@ int main (int argc, char *argv[]) {
 
 
     // N. QUIT
-    close(mysock);
+    close(mysock_utente);
     return 0;
 }

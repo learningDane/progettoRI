@@ -1,5 +1,8 @@
 #include "include.h"
 
+extern int connesso; // 0=non connesso alla lavagna , 1=connesso alla lavagna
+extern int mysock_utente; // socket connesso alla lavagna
+
 /* @brief Generare un numero randomico secondo le specifiche fornite
  *
  */
@@ -65,4 +68,4 @@ void MOVE_CARD();
  *
  * @param
  */
-void HELLO(int*mysock, struct sockaddr_in*lavagna);
+void HELLO(int*mysock_utente, struct sockaddr_in*lavagna);

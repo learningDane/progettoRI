@@ -1,7 +1,7 @@
-#include "libs/lib_lavagna.c"
-#include <stdio.h>
+#include "include/include_lavagna.h"
 
 int main () {
+
     // 1. mostra a video lo stato della lavagna
     SHOW_LAVAGNA();
 
@@ -29,17 +29,17 @@ int main () {
     my_addr.sin_port = port;
     inet_pton(AF_INET, LOCALHOST, &my_addr.sin_addr);
 
-    mysock = socket(AF_INET, SOCK_STREAM, 0);
-    printf("Aperto socket %d\n", mysock);
+    mysock_lavagna = socket(AF_INET, SOCK_STREAM, 0);
+    printf("Aperto socket %d\n", mysock_lavagna);
 
-    int err_bind = bind(mysock, (struct sockaddr*)&my_addr, (socklen_t)sizeof(my_addr));
+    int err_bind = bind(mysock_lavagna, (struct sockaddr*)&my_addr, (socklen_t)sizeof(my_addr));
     if (err_bind) {
         perror("errore su bind: ");
         return -1;
     }
     printf("Socket collegato\n");
 
-    int err_listen = listen(mysock, BACKLOG);
+    int err_listen = listen(mysock_lavagna, BACKLOG);
     if (err_listen) {
         perror("errore su listen: ");
         return -1;
@@ -70,6 +70,9 @@ int main () {
 
         // 1. controllo input da terminale
         if (FD_ISSET(STDIN_FILENO, &readfds)) {
+            if (DEBUG) {
+                printf("gestisco input da terminale\n");
+            }
             // leggi il comando dalla riga di comando
             /*
             if (fgets(comando, sizeof(comando), stdin) != NULL) {
@@ -81,13 +84,19 @@ int main () {
         }
 
         // 2. Controllo nuove connessioni
-        if (FD_ISSET(mysock, &readfds)) {
+        if (FD_ISSET(mysock_lavagna, &readfds)) {
+            if (DEBUG) {
+                printf("gestisco nuove connessioni\n");
+            }
             accetta_utente();
         }
 
         // 3. controlla connessioni esistenti
-        else if (des_pronti > 0) { // qualche descrittore è pronto, ma non è ne stdin ne mysock, quindi è una connessione esistente
-
+        else if (des_pronti > 0) { // qualche descrittore è pronto, ma non è ne stdin ne mysock_lavagna, quindi è una connessione esistente
+            if (DEBUG) {
+                printf("gestisco connessioni esistenti\n");
+                gestisci_messaggio_utente();
+            }
         }
     }
 }
