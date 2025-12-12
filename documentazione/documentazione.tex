@@ -28,9 +28,23 @@ Ho optato per rendere la lavagna iterativa (non concorrente) nel servire le conn
 Tengo dunque traccia degli utenti connessi tramite una lista, in modo da non dover definire un numero massimo di utenti contemporaneamente connessi.
 Con un solo thread devo dunque, controllare se ci sono nuove connessioni, gestire quelle esistenti e controllare l'input da terminale (stdin), aggiungo tutti questi descrittori al controllo della select e gestisco in ordine stdin, le nuove connessioni ed infine le connesioni già stabilite.
 
-\subsection*{Struttura dei pacchetti}
+Utilizzando questo approccio non posso permettermi di avere comunicazioni utente - lavagna a più fasi, ogni scambio di informazioni deve essere botta-riposta, senza raccolta di input da terminale in mezzo, altrimenti la lavagna perderebbe tempo per colpa dell'utente ed ignorerebbe richieste da altri utenti connessi.
 
-\subsection*{Modalità di scambio dei dati (text/binary)}
+Questo porta allo svantaggio per esempio che l'utente sia informato della disponibilità dell'ID della card creata, solo dopo averla inviata. Sarebbe possibile scomporre (seguendo l'esempio della CREATE CARD) il processo di creazione ed invio d una nuova card in più comunicazione, separando l'invio dell'ID della card e l'invio della descrizione dell'attività relativa, però aumenterebbe il numero di send/recv.
+
+\subsection*{Struttura dei pacchetti e modalità di scambio dei Dati}
+Per quanto riguarda le comunicazioni utente - lavagna, avendo optato per chiudere gli scambi di informazioni in al più un messaggio da parte dell'utente uno da parte della lavagna, ho la necessità di inviare più informazioni, anche di natura diversa in una stessa \texttt{send()}.
+
+Ho deciso che i primi 4 byte di ogni messaggio sono l'ID del comando (\texttt{uint32\_t}), in base a quello la lavagna (o l'utente) sa come interpretare il resto del messaggio. Per esempio la \texttt{CREATE\_CARD} invia un messaggio costruito come segue:
+\begin{verbatim}
+4byte: ID_CREATE_CARD
+4byte: ID_nuova_card
+max1024byte: descrizione_attività
+1byte:'\0'
+\end{verbatim}
+Questi campi non sono separati o segnalati, la lavagna legge i primi 4 byte e riconosce il comando \texttt{CREATE\_CARD}, da questo sa che i prossimi 4 byte sono l'ID della card e tutto quello che segue (massimo 1024 byte) è la descrizione del messaggio, terminata da \texttt{'\\0'}.
+
+I numeri sono portati in endianess di rete prima di essere inviati, e riportati in endianess di sistema all'arrivo.
 
 \subsection*{Gestione dei socket}
 
