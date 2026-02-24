@@ -67,5 +67,6 @@ struct card {
 /* @brief Valida un comando inserito da terminale e ne restituisce il relativo ID
  * @param
  * buf : puntatore al buffer dove è salvata la stringa (terminata da \0, senza \n)
+ * @return: ritorna -1 in caso di errore, altrimenti ritorna l'ID del comando letto
  */
 int VALIDA_INPUT(const char*buf);

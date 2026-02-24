@@ -11,10 +11,12 @@ int rando() {
 
 void ACK_CARD() {
     // comunica alla lavagna la card che gli è stata assegnata
+    ///@todo
 }
 
 void CARD_DONE() {
     // comunica alla lavagna la terminazione della card
+    ///@todo
 }
 
 void QUIT () {
@@ -26,6 +28,7 @@ void QUIT () {
 
 void PONG_LAVAGNA() {
     // contatta lavagna
+    ///@todo
 }
 
 void CREATE_CARD() {

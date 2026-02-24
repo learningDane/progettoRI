@@ -1,6 +1,6 @@
 # compiler
 CC = clang
-CFLAGS = -g -Wall -I$(INCLUDEPATH)
+CFLAGS = -g -Wall -I$(INCLUDEPATH) -xc
 LDFLAGS =
 
 # paths

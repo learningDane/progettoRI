@@ -79,3 +79,13 @@ void crea_card(char*buf,struct utente_des*utente);
  * @return 0==ID disponibile, 1==ID non disponibile
  */
 int check_id_card(uint32_t ID);
+
+/* @brief La lavagna manda la lista delle porte utilizzate (gli utenti connessi) agli utenti.
+ * @return -1 se non ci sono utenti connessi, -2 se la comunicazione è fallita, 0 se va tutto bene
+ */
+int SEND_USER_LIST();
+
+/* @brief Manda la prima card in ToDo, e la lista di utenti connessi (meno il destinatario) a tutti gli utenti connessi.
+ *
+ */
+void AVAILABLE_CARD();

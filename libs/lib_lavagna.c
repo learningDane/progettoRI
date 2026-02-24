@@ -107,6 +107,10 @@ void accetta_utente() {
 
     STAMPA_UTENTI();
 
+    // se ci sono almeno due utenti connessi mando la prima card in todo a tutti gli utenti
+    if (utentiConnessi > 1)
+        AVAILABLE_CARD();
+
     return;
 }
 
@@ -142,12 +146,14 @@ void STAMPA_UTENTI() {
     struct utente_des*utente_attuale = testa_des_utente;
     if (utente_attuale == NULL) {
         printf("nessun utente connesso.\n");
-        printf("=============================\n");
+        //printf("=============================\n");
     }
-    printf("numero di utenti connessi: %d\n",utentiConnessi);
-    while (utente_attuale != NULL) {
-        printf("\t%d\n",utente_attuale->utente);
-        utente_attuale = utente_attuale->prox;
+    else {
+        printf("numero di utenti connessi: %d\n",utentiConnessi);
+        while (utente_attuale != NULL) {
+            printf("\t%d\n",utente_attuale->utente);
+            utente_attuale = utente_attuale->prox;
+        }
     }
     printf("=============================\n");
 }
@@ -161,10 +167,34 @@ void input_stdin() {
         }
     }
     int ID_comando = VALIDA_INPUT(buf);
-    if (ID_comando < 0) {
-        printf("comando non riconosciuto. Riprovare...\n");
+    switch (ID_comando) {
+        case -1: {
+            printf("Comando non riconosciuto.\n");
+            break;
+        }
+        case 6: {
+            SEND_USER_LIST();
+            break;
+        }
+        case 7: {
+            SHOW_LAVAGNA();
+            break;
+        }
+        default: {
+            printf("Comando non disponibile alla lavagna.\n");
+        }
     }
 }
+/*
+    #define ID_CREATE_CARD 1
+    #define ID_HELLO 2
+    #define ID_QUIT 3
+    #define ID_ACK_CARD 4
+    #define ID_CARD_DONE 5
+    ///comandi lavagna
+    #define ID_SEND_USER_LIST 6
+    #define ID_SHOW_LAVAGNA 7
+ */
 
 void gestisci_messaggio_utente() {
     // scorro la lista degli utenti e per ognuno controllo se ha inviato un messaggio
@@ -323,4 +353,23 @@ int check_id_card(uint32_t ID) {
         }
     }
     return 0;
+}
+
+int SEND_USER_LIST() {
+    // controllo se ci sono utenti connessi
+    if (!utentiConnessi) {
+        printf("Non ci sono utenti connessi.\n");
+        return -1;
+    }
+    // mando la lista degli utenti connessi ad ogni utente, se una comunicazione fallisce, inserisco il numero di porta relativo in @ref comunicazioni_fallite
+    ///@todo
+
+    return 0;
+}
+
+void AVAILABLE_CARD() {
+    /// per ogni utente connesso:
+        // in TCP: mando la prima carta in todo + (user list - destinatario) + numero utenti connessti, al destinatario
+    /// attendo tutti gli ack (creo un vettore di utenti connessi, man mano che arrivano gli ack faccio la MOVE_CARD e aggiorno la lista)
+    // ritorno ad ascoltare sulle porte
 }

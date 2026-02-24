@@ -49,7 +49,9 @@ I numeri sono portati in endianess di rete prima di essere inviati, e riportati 
 \subsection*{Gestione dei socket}
 
 \section*{Scelte Varie}
-Ho optato per non rendere bloccante l'assegnazione di una Card: un utente quando riceve una card (Doing) non si blocca e continua a poter ricevere comandi da verticale.
+Ho optato per non rendere bloccante l'assegnazione di una Card: un utente quando riceve una card (Doing) non si blocca e continua a poter ricevere comandi da terminale.
+
+Quando un utente riceve una Card, non si blocca, inoltre può ricevere nuove Card, per ogni Card che gli sono già state assegnate, il suo costo base sale, in modo da essere scelto più difficilmente.
 
 \section*{Istruzioni sulla Compilazione}
 Comando per compilare il progetto:
@@ -63,27 +65,13 @@ make clean
 Il comando crea i due file eseguibili richiesti nella root directory del progetto.
 Per eseguirli si può proseguire come indicato nelle specifiche del progetto.
 
-\section{domande prof.sa Righetti}
-\begin{enumerate}
-    \item Le specifiche dicono che appena lanciata, la lavagna deve stamparsi, con le carte nelle relative posizioni, ma quando la lavagna è inizialmente avviata non ci sono carte dentro, o sbaglio? La lavagna deve essere inizializzata con qualche carta? Risposta: se la lavagna non è stateless...
-    \item Come viene assegnato l'ID della lavagna e a cosa serve?
-\end{enumerate}
-
-\section{risposte}
-\begin{enumerate}
-    \item Quando l'utente lancia il comando \texttt{CREATE\_CARD}, la colonna viene automaticamente assegnata dalla lavagna (ToDo), l'ID no, quindi va controllato che sia disponibile
-    \item Non tutti i comandi devono essere eseguibili da riga da comando (aggiungere HELP per i comandi disponibili?)
-    \item Quando un utente si blocca su una carta (Doing), non serve che il terminale dell'utente sia ancora interattivo (=> Sleep)
-    \item Quanto sopra comporta (se si sceglie di rendere il Doing bloccante) che l'utente possa creare carte solamente quando non ha card assegnate.
-    \item Le comunicazioni Utente - Utente NON devono passare dalla lavagna.
-\end{enumerate}
-
 \section{ToDo}
 \begin{enumerate}
     \item check ID utente
     \item timeout per utenti
-    \item \texttt{SEND\_USER\_LIST}
-    \item chiedi sul gruppo cosa diceva la prof.sa Righetti che non va fatto riguardo lo scambio dei dati testo/binario
+    \item HELP
+    \item AVAILABLE\_CARD
+    \item comunicazioni utente-utente
 \end{enumerate}
 
 

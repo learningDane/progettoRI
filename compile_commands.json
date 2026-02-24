@@ -1,0 +1,18 @@
+[
+  {
+    "file": "lavagna.c",
+    "arguments": [
+      "clang",
+      "-g",
+      "-Wall",
+      "-Iinclude",
+      "-xc",
+      "-c",
+      "lavagna.c",
+      "-o",
+      "objects/lavagna.o"
+    ],
+    "directory": "/Users/davidesqueri/Documents/UNI/Anno III/_Reti Informatiche/progetto",
+    "output": "objects/lavagna.o"
+  }
+]
