@@ -96,7 +96,8 @@ in_id:
     } else {
         printf("Richiesta CREATE_CARD inviata. Totale %zu bytes.\n", total_len);
         char buf_risposta[2] = {0};
-        recv(mysock_utente, buf_risposta, 1, 0);
+        int received = recv(mysock_utente, buf_risposta, 1, 0);
+        controlla_connessione(received);
         // CONTROLLA BUF_RISPOSTA, 1=ID non disponibile, 0=ID disponibile
         buf_risposta[1] = '\0';
         if (strcmp("0", buf_risposta) == 0) { // se ricevo 0 da lavagna, ID è disponibile
@@ -147,5 +148,12 @@ void HELLO(int*mysock_utente, struct sockaddr_in*lavagna) {
         printf("ACK non ricevuto.\n");
         printf("messaggio ricevuto: %s\n", buf_temp);
         exit(-1);
+    }
+}
+
+void controlla_connessione(int received) {
+    if (!received) {
+        printf("Lavagna disconnessa, terminazione...\n");
+        exit(0);
     }
 }

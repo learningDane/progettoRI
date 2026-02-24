@@ -69,3 +69,8 @@ void MOVE_CARD();
  * @param
  */
 void HELLO(int*mysock_utente, struct sockaddr_in*lavagna);
+
+/* @brief Controlla se la connessione è ancora valida.
+ * @param received è l'intero restituito da una precedente read()
+ */
+void controlla_connessione(int received);

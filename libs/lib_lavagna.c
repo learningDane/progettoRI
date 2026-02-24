@@ -18,6 +18,7 @@ socklen_t utenteLen = sizeof(utente);
 
 void SHOW_LAVAGNA() {
     // stampa la lavagna, con le colonne e le card assegnate nelle giuste colonne
+    printf("\n");
     printf("-------------------------------------------\n|                   %5d                 |\n-------------------------------------------\n|    ToDo    |     Doing    |     Done    |\n-------------------------------------------\n",ID_LAVAGNA);
     card_t*todo = testaToDo;
     card_t*doing = testaDoing;
@@ -49,6 +50,7 @@ void SHOW_LAVAGNA() {
         }
     }
     printf("-------------------------------------------\n");
+    printf("\n");
 }
 
 
@@ -142,6 +144,7 @@ void prepara_set() {
 }
 
 void STAMPA_UTENTI() {
+    printf("\n");
     printf("====== Utenti Connessi ======\n");
     struct utente_des*utente_attuale = testa_des_utente;
     if (utente_attuale == NULL) {
@@ -156,6 +159,7 @@ void STAMPA_UTENTI() {
         }
     }
     printf("=============================\n");
+    printf("\n");
 }
 
 void input_stdin() {
