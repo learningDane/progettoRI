@@ -11,7 +11,9 @@ card_t *testaDoing = NULL;
 card_t *testaDone = NULL;
 char buf[MAX_LEN_COMANDO + 2]; // buffer per il comando da terminale, dimensionato per il comando più lungo possibile + \n + \0
 
-struct utente_des * testa_des_utente = NULL;
+/// Puntatore alla testa della lista degli utenti connessi
+utente_des_t * testa_des_utente = NULL;
+
 struct sockaddr_in utente;
 socklen_t utenteLen = sizeof(utente);
 
@@ -176,6 +178,10 @@ void input_stdin() {
             printf("Comando non riconosciuto.\n");
             break;
         }
+        case 3: {
+            printf("terminazione...\n");
+            exit(0);
+        }
         case 6: {
             SEND_USER_LIST();
             break;
@@ -250,6 +256,7 @@ void crea_card(char*buf,struct utente_des*utente) {
     // il messaggio è strutturato come: ID_comando ID_carta descrizione_att
     card_t*new_card = malloc(sizeof(card_t)); // creo una nuova carta
     new_card->responsabile = 0;
+    new_card->timestampUltimaModifica = time(NULL);
     new_card->prox = NULL;
     size_t offset = sizeof(uint32_t);
     // ID della card
@@ -374,6 +381,23 @@ int SEND_USER_LIST() {
 void AVAILABLE_CARD() {
     /// per ogni utente connesso:
         // in TCP: mando la prima carta in todo + (user list - destinatario) + numero utenti connessti, al destinatario
-    /// attendo tutti gli ack (creo un vettore di utenti connessi, man mano che arrivano gli ack faccio la MOVE_CARD e aggiorno la lista)
-    // ritorno ad ascoltare sulle porte
+    /// attendo che mi arrivi ACK_CARD dall'utente vincitore
+    // ritorno
+
+
+}
+
+utente_des_t* trova_utente(utente_t utente, utente_des_t **prior) {
+    utente_des_t *lavoro = testa_des_utente;
+    utente_des_t *prev = NULL;
+
+    while (lavoro != NULL && lavoro->utente != utente) {
+        prev = lavoro;
+        lavoro = lavoro->prox;
+    }
+
+    if (prior)
+        *prior = prev;
+
+    return lavoro;   // NULL se non è stato trovato
 }
