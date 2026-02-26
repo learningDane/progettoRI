@@ -89,3 +89,54 @@ int SEND_USER_LIST();
  *
  */
 void AVAILABLE_CARD();
+
+/* @brief restituisce il puntatore al descrittore dell'utente specificato
+ * @param utente è l'id dell'utente da cercare nella lista degli utenti connessi
+ * @param NULLABLE prior è il puntatore a struct utente_des (va passato per riferimento) dove scrivere il puntatore al descrittore che precede quello richiesto (utile per operazioni di rimozione utenti)
+ * @return il puntatore (struct des_utente*) al descrittore dell'utente richiesto, NULL se non è stato trovato
+ */
+utente_des_t* trova_utente(utente_t utente, utente_des_t**prior);
+
+/* @brief Invia una matrice ad un utente
+ * Si occupa di portare in endianess di rete
+ * @param utente è il puntatore al descrittore di utente destinatario
+ * @param id_comando
+ * @param mat è il puntatore alla locazione di memoria che contiene la matrice di interi da mandare
+ * @param len è il numero di interi
+ * @return int: 0 se tutto è andato bene, -1 altrimenti
+ */
+int manda_matrice(utente_des_t*utente, uint32_t*mat, int len);
+
+/* @brief Inserisce la card desiderata in fondo alla lista scelta
+ * @param testaLista va passato per riferimento
+ */
+void inserimento_lista_card(card_t**testaLista, card_t*newCard);
+
+/* @brief Estrae la prima card nella lista specificata
+ * @param testaLista va passato per riferimento
+ * Si occupa di "scollegare" la card estratta dalla lista di origine
+ * @return Il puntatore alla card estratta
+ */
+card_t* estrazione_lista_card(card_t**testaLista);
+
+/* @brief Sposta la card indicata dalla lista in cui è a quella desiderata
+ *
+ * in particolare esegue estrazione_lista_card e inserimento_lista_card
+ * @param listaSorg va passato per riferimento
+ * @param listaDest va passato per riferimento
+ */
+void MOVE_CARD(card_t*card, card_t**listaDest, card_t**listaSorg);
+
+/* @brief Legge dal socket dell'utente l'id della card da mettere in Doing
+ *
+ * In particolare esegue MOVE_CARD(carta, testaDoing)
+ */
+void ACK_CARD(utente_des_t*utente);
+
+/* @brief restituisce il puntatore al descrittore di card specificata
+* @param lista è la lista nella quale trovare la card
+* @param ID è l'id della card da cercare nella lista indicata
+* @param NULLABLE prior è il puntatore a card_t (va passato per riferimento) dove scrivere il puntatore al descrittore che precede quello richiesto (utile per operazioni di rimozione card)
+* @return il puntatore (card_t*) al descrittore della card richiesta, NULL se non è stata trovata
+ */
+card_t* trova_card(card_t*lista, uint32_t ID, card_t**prior);

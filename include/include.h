@@ -27,7 +27,7 @@
 
 #define DES_ATT_LEN 1024 // massimo numero di caratteri per la descrizione dell'attività
 
-#define NUMERO_COMANDI_DISPONIBILI 7
+#define NUMERO_COMANDI_DISPONIBILI 8
 #define MAX_LEN_COMANDO 14
 /////////
 /// comandi utente
@@ -39,13 +39,18 @@
 ///comandi lavagna
 #define ID_SEND_USER_LIST 6
 #define ID_SHOW_LAVAGNA 7
+#define ID_AVAILABLE_CARD 8
 /////////
 
 ///////// typedef
 
 typedef uint32_t utente_t;
 typedef struct card  card_t;
+typedef struct utente_des utente_des_t;
 
+//////// Macro
+#define DBG(x) do {if (DEBUG) printf("%s\n", #x);} while (0)
+////////
 
 ////////// strutture
 
@@ -56,7 +61,7 @@ struct card {
     uint32_t ID;
     //int colonna; // 0 1 2 : ToDo Doing Done
     char *descrizione; // testo attività
-    int responsabile; // n. di porta dell'utente che la implementa o la ha implementata
+    utente_t responsabile; // n. di porta dell'utente che la implementa o la ha implementata
     time_t timestampUltimaModifica;
     card_t*prox;
 };

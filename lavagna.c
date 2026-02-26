@@ -57,9 +57,7 @@ int main() {
 loop:
     FD_ZERO(&readfds);
     prepara_set();
-    if (DEBUG) {
-      printf("Controllo socket con select()...\n");
-    }
+    DBG(Controllo socket con select()...);
     des_pronti = select(max_des + 1, &readfds, NULL, NULL, /*timeout*/ NULL);
 
     if (DEBUG) {

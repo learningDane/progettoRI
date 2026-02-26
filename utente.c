@@ -52,49 +52,68 @@ int main (int argc, char *argv[]) {
 
     while(1) {
         printf("Inserire un comando:\n");
-        fgets(buf, sizeof(buf), stdin); // questo legge al più (numero di caratteri disponibili in buf - 1), ed in fondo aggiunge \0
-        // rimozione di \n:
-        for (int i = 0; buf[i] != '\0'; i++) {
-            if (buf[i] == '\n') {
-                buf[i] = '\0';
+
+        int des = rileva_input();
+        switch (des) {
+            case 0: {
+                // non ci sono messaggi, caso impossibile
+                /// <---
+                break;
+            }
+            case 3: {
+                // messaggi sia da lavagna che da terminale
+                DBG(MESSAGGIO SIA DA LAVAGNA CHE DA TERMINALE);
+                /// <---
+                break;
+            }
+            case 1: {
+                // messaggio dalla lavagna
+                /// <---
+                // leggi mess
+                // if (!read()) {QUIT();}
+                gestisci_messaggio_lavagna();
+                break;
+            }
+            case 2: {
+                // messaggio dal terminale
+                DBG(Gestione comando da terminale.);
+                fgets(buf, sizeof(buf), stdin); // questo legge al più (numero di caratteri disponibili in buf - 1), ed in fondo aggiunge \0
+                // rimozione di \n:
+                for (int i = 0; buf[i] != '\0'; i++) {
+                    if (buf[i] == '\n') {
+                        buf[i] = '\0';
+                    }
+                }
+                int ID_comando = VALIDA_INPUT(buf);
+
+                switch (ID_comando) {
+                    case -1: {
+                        printf("comando non riconosciuto. Riprovare...\n");
+                        break;
+                    }
+                    case ID_HELLO: {
+                        HELLO(&mysock_utente, (struct sockaddr_in *)&lavagna);
+                        break;
+                    }
+                    case ID_QUIT: {
+                        QUIT();
+                    }
+                    case ID_CREATE_CARD: {
+                        CREATE_CARD();
+                        break;
+                    }
+                    case ID_CARD_DONE: {
+                        CARD_DONE();
+                        break;
+                    }
+                    default: {
+                        printf("Comando non disponibile.\n");
+                    }
+                }
             }
         }
-        int ID_comando = VALIDA_INPUT(buf);
-        if (ID_comando < 0) {
-            printf("comando non riconosciuto. Riprovare...\n");
-        }
-        else if (ID_comando > 5) { // per ogni comando chiamare la funzione corretta
-            printf("Comando non disponibile agli utenti. Riprovare...\n");
-        }
-        else if (ID_comando == ID_HELLO) {
-            HELLO(&mysock_utente, (struct sockaddr_in *)&lavagna);
-        }
-        else if (ID_comando == ID_QUIT) {
-            QUIT();
-        }
-        else if (connesso == 0 && DEBUG == 0) {
-            printf("Comando non disponibile senza una connessione con la lavagna.\n");
-        }
-        else if (ID_comando == ID_CREATE_CARD) {
-            CREATE_CARD();
-        }
-        else if (ID_comando == ID_ACK_CARD) {
-            ACK_CARD();
-        }
-        else if (ID_comando == ID_CARD_DONE) {
-            CARD_DONE();
-        }
     }
-
-
-    // prima azione è registrazione
-
-    // quando ricevo AVAILABLE_CARD comincia uno scambio di messaggi per assegnare la carta
-
-    // 1. HELLO
-
-
-    // N. QUIT
     close(mysock_utente);
+    DBG(chiusura.);
     return 0;
 }

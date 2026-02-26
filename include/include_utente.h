@@ -74,3 +74,31 @@ void HELLO(int*mysock_utente, struct sockaddr_in*lavagna);
  * @param received è l'intero restituito da una precedente read()
  */
 void controlla_connessione(int received);
+
+/* @brief Controlla se ci sono nuovi messaggi dalla lavagna o dal terminale
+ * @return
+ * 0 se non ci sono messaggi,
+ * 1 se vi è un messaggio dalla Lavagna,
+ * 2 se vi è un messaggio dal terminale,
+ * 3 se vi sono entrambi.
+ */
+int rileva_input();
+
+/* @brief Gestisce il messaggio inviato dalla lavagna
+ */
+void gestisci_messaggio_lavagna();
+
+/* @brief Si occupa di mandare un messaggio precostruito alla lavagna
+ * @param comando è l'id del comando da mandare alla lavagna
+ * @param buf è il puntatore al buffer da inviare
+ * @param length è la lunghezza del buffer (NON del messaggio finale)
+ */
+void manda_comando_lavagna(int comando, const char* buf, const size_t length);
+
+/* @brief Riceve dal socket indicato il numero di byte specificati e li inserisce in @ref buf
+ *
+ * È bloccante.
+ * @param buf è il puntatore al buffer in cui scrivere i byte letti
+ * @return il numero di byte letti, ovvero len, ritorna 0 se la lavagna ha chiuso il socket, -1 se vi è stato un errore di rete
+ */
+ssize_t recv_all(int sockfd, void *buf, size_t len);

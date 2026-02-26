@@ -14,8 +14,12 @@ char buf[MAX_LEN_COMANDO + 2]; // buffer per il comando da terminale, dimensiona
 /// Puntatore alla testa della lista degli utenti connessi
 utente_des_t * testa_des_utente = NULL;
 
+card_t *testaPendingCards = NULL;
+
 struct sockaddr_in utente;
 socklen_t utenteLen = sizeof(utente);
+
+int attesa_ack = 0;
 
 
 void SHOW_LAVAGNA() {
@@ -56,9 +60,10 @@ void SHOW_LAVAGNA() {
 }
 
 
-struct utente_des* scorri_lista (struct utente_des* des_attuale) {
+utente_des_t* scorri_lista (utente_des_t* des_attuale) {
     if (des_attuale == NULL) {
         // gestisci errore
+        return NULL;
     }
     while (des_attuale->prox != NULL) {
         des_attuale = des_attuale->prox;
@@ -82,7 +87,7 @@ void accetta_utente() {
     }
 
     // aggiungi sock alla lista di des_utenti
-    struct utente_des*nuovo_utente = malloc(sizeof(struct utente_des));
+    utente_des_t*nuovo_utente = malloc(sizeof(utente_des_t));
     if (nuovo_utente == NULL) {
         printf("malloc error\n");
         exit(-1);
@@ -99,7 +104,7 @@ void accetta_utente() {
         testa_des_utente = nuovo_utente;
     }
     else {
-        struct utente_des*ultimo_utente = scorri_lista(testa_des_utente);
+        utente_des_t*ultimo_utente = scorri_lista(testa_des_utente);
         ultimo_utente->prox = nuovo_utente;
     }
 
@@ -135,7 +140,7 @@ void prepara_set() {
     }
 
     // 3. Aggiungo i descrittori dei socket connessi con gli utenti
-    struct utente_des *des_attuale = testa_des_utente;
+    utente_des_t *des_attuale = testa_des_utente;
     while (des_attuale != NULL) {
         FD_SET(des_attuale->des, &readfds);
         if (des_attuale->des > max_des) {
@@ -148,7 +153,7 @@ void prepara_set() {
 void STAMPA_UTENTI() {
     printf("\n");
     printf("====== Utenti Connessi ======\n");
-    struct utente_des*utente_attuale = testa_des_utente;
+    utente_des_t*utente_attuale = testa_des_utente;
     if (utente_attuale == NULL) {
         printf("nessun utente connesso.\n");
         //printf("=============================\n");
@@ -183,7 +188,7 @@ void input_stdin() {
             exit(0);
         }
         case 6: {
-            SEND_USER_LIST();
+            //SEND_USER_LIST();
             break;
         }
         case 7: {
@@ -204,11 +209,12 @@ void input_stdin() {
     ///comandi lavagna
     #define ID_SEND_USER_LIST 6
     #define ID_SHOW_LAVAGNA 7
+    #define ID_AVAILABLE_CARD 8
  */
 
 void gestisci_messaggio_utente() {
     // scorro la lista degli utenti e per ognuno controllo se ha inviato un messaggio
-    struct utente_des*attuale = testa_des_utente;
+    utente_des_t*attuale = testa_des_utente;
     while (!FD_ISSET(attuale->des,&readfds)) { // finché non trovo un descrittore nel set di descrittori con messaggi in entrata
         attuale = attuale->prox;
     }
@@ -220,6 +226,7 @@ void gestisci_messaggio_utente() {
     int n = recv(des_utente,buf,max_buf,0); // ricevo il messaggio
     if (n == 0) { // l'utente ha terminato
         rimuovi_utente(attuale);
+        free(buf);
         return;
     }
     else if (n < 0) {
@@ -246,9 +253,10 @@ void gestisci_messaggio_utente() {
         crea_card(buf,attuale); // attuale è l'utente che ha inviato il messaggio
     }
     ////////// altri comandi...
+    free(buf);
 }
 
-void crea_card(char*buf,struct utente_des*utente) {
+void crea_card(char*buf,utente_des_t*utente) {
     if (DEBUG) {
         printf("creazione nuova card...\n");
     }
@@ -289,7 +297,6 @@ void crea_card(char*buf,struct utente_des*utente) {
     new_card->descrizione = buf_des; // new_card->descrizione è il puntatore alla zona di memoria dove è salvata la descrizione
 
     new_card->timestampUltimaModifica = time(NULL);
-    free(buf);
 
     // adesso devo aggiungere la card in fondo alla colonna ToDo
     if (testaToDo == NULL) {
@@ -309,13 +316,13 @@ void crea_card(char*buf,struct utente_des*utente) {
     SHOW_LAVAGNA();
 }
 
-void rimuovi_utente(struct utente_des*utente) {
+void rimuovi_utente(utente_des_t*utente) {
     if (DEBUG) {
         printf("rimozione utente %d...\n", utente->utente);
     }
     // gestisci il caso in cui l'utente abbia una carta assegnata
-    struct utente_des * old;
-    struct utente_des * this;
+    utente_des_t * old;
+    utente_des_t * this;
     this = testa_des_utente;
     old = testa_des_utente;
     if (this == NULL) { // la lista è vuota
@@ -326,14 +333,14 @@ void rimuovi_utente(struct utente_des*utente) {
         testa_des_utente = testa_des_utente->prox;
     }
     else {
-        while (this->utente != utente->utente) {
-            if (this == NULL) {
-                printf("descrittore utente non presente nella lista.\n");
-                free(utente);
-                return;
-            }
+        while (this != NULL && this->utente != utente->utente) {
+
             old = this;
             this = this->prox;
+        }
+        if (this == NULL) {
+            printf("descrittore utente non presente nella lista.\n");
+            return;
         }
     }
     // rimuovo this (che è utente a questo punto)
@@ -372,19 +379,92 @@ int SEND_USER_LIST() {
         printf("Non ci sono utenti connessi.\n");
         return -1;
     }
-    // mando la lista degli utenti connessi ad ogni utente, se una comunicazione fallisce, inserisco il numero di porta relativo in @ref comunicazioni_fallite
-    ///@todo
 
+    // manda comando+dimensione matrice
+    uint32_t mes1[2];
+    mes1[0] = htonl(ID_SEND_USER_LIST);
+    mes1[1] = htonl(utentiConnessi);
+
+    // creo una matrice sizeof(int)*utentiConnessi
+    uint32_t utenti[utentiConnessi];
+    int i = 0;
+    utente_des_t*lavoro = testa_des_utente;
+    while (lavoro != NULL) {
+        utenti[i] = lavoro->utente;
+        lavoro = lavoro->prox;
+        i++;
+    }
+
+    lavoro = testa_des_utente;
+    while (lavoro != NULL) {
+        // mando comando e dimensione matrice
+        ssize_t err = send(lavoro->des, mes1, sizeof(mes1), 0);
+        if (err < 0) {
+            perror("SEND_USER_LIST: errore send:");
+            /*provvisorio*/ return -2;
+            // gestire errore ?
+            // dovrei comunicare a ogni utente che la lista non è affidabile e l'assegnazione della card va annullata @problema
+        }
+        err = manda_matrice(lavoro, utenti, utentiConnessi);
+        if (err < 0) {
+            perror("SEND_USER_LIST: errore send:");
+            /*provvisorio*/ return -2;
+        }
+        lavoro = lavoro->prox;
+    }
     return 0;
 }
 
 void AVAILABLE_CARD() {
-    /// per ogni utente connesso:
-        // in TCP: mando la prima carta in todo + (user list - destinatario) + numero utenti connessti, al destinatario
-    /// attendo che mi arrivi ACK_CARD dall'utente vincitore
-    // ritorno
+    if (attesa_ack)
+        return;
+    attesa_ack = 1;
+    /// ad ogni utente connesso mando la prima carta in todo
+    if (SEND_USER_LIST() < 0) {
+        DBG(Errore SEND_USER_LIST);
+        exit(-1);
+    }
+    // scelgo la prima card
+    if (!testaToDo) {
+        attesa_ack = 0;
+        return;
+    }
+    card_t*card = estrazione_lista_card(&testaToDo);
+    inserimento_lista_card(&testaPendingCards,card);
 
+    // creo messaggio: ID_CARD + descrizione
+    char*buf = malloc(sizeof(uint32_t) + strlen(card->descrizione) + 1);
+    uint32_t*tmp_int = (uint32_t*)buf;
+    *tmp_int = htonl(card->ID);
+    char*tmp = buf + sizeof(uint32_t);
+    strcpy((char*)tmp,(const char*)card->descrizione); // include '\0'
+    size_t len = sizeof(uint32_t) + strlen(card->descrizione) + 1; // lunghezza di @ref buf in byte
 
+    // invio ID_comando + lunghezza messaggio
+    uint32_t mes1[2];
+    mes1[0] = htonl(ID_AVAILABLE_CARD);
+    mes1[1] = htonl(len);
+
+    utente_des_t*lavoro = testa_des_utente;
+    while (lavoro != NULL) {
+        // ad ogni utente mando mes1 e buf
+        send(lavoro->des,mes1, sizeof(mes1), 0); // mando comando e dimensione prox messaggio
+        {
+            size_t sent = 0, total = len;
+            while (sent < total) {
+                ssize_t sent_now = send(lavoro->des, buf + sent, len - sent, 0);
+                if (sent_now < 0) {
+                    perror("AVAILABLE_CARD: errore send():");
+                    exit(-1);
+                }
+                sent += sent_now;
+            }
+        }
+        lavoro = lavoro->prox;
+    }
+    // finito di mandare i messaggi
+    free(buf);
+    return;
 }
 
 utente_des_t* trova_utente(utente_t utente, utente_des_t **prior) {
@@ -392,6 +472,118 @@ utente_des_t* trova_utente(utente_t utente, utente_des_t **prior) {
     utente_des_t *prev = NULL;
 
     while (lavoro != NULL && lavoro->utente != utente) {
+        prev = lavoro;
+        lavoro = lavoro->prox;
+    }
+
+    if (prior)
+        *prior = prev;
+
+    return lavoro;   // NULL se non è stato trovato
+}
+
+int manda_matrice(utente_des_t*utente, uint32_t*mat, int len) {
+    uint32_t *mat_msg = malloc(len * sizeof(uint32_t));
+    if (!mat_msg) {
+        perror("manda_matrice(): Errore Malloc:");
+        exit(-1);
+    }
+    for (uint32_t i = 0; i < len; i++) {
+        mat_msg[i] = htonl(mat[i]);
+    }
+    size_t bytes_sent = 0;
+    size_t total_bytes = len*(sizeof(uint32_t));
+    while (bytes_sent < total_bytes) {
+        ssize_t sent = send(utente->des, (char*)mat_msg + bytes_sent, total_bytes - bytes_sent, 0);
+
+        if (sent < 0) {
+            perror("Error sending matrix");
+            free(mat_msg);
+            return -1; // Send failed
+        }
+        bytes_sent += sent;
+    }
+    free(mat_msg);
+    return 0;
+}
+
+void inserimento_lista_card(card_t**testaLista, card_t*newCard) {
+    newCard->prox = NULL;
+    card_t*lavoro = *testaLista;
+    if (!*testaLista) {
+        *testaLista = newCard;
+        return;
+    }
+    while (lavoro->prox) {
+        lavoro = lavoro->prox;
+    }
+    lavoro->prox = newCard;
+}
+
+card_t* estrazione_lista_card(card_t**testaLista) {
+    if (!*testaLista)
+        return NULL;
+    // estraggo la card in testa
+    card_t*card_estratta = *testaLista;
+    *testaLista = (*testaLista)->prox;
+    card_estratta->prox = NULL; // scollego la card estratta dal resto della lista
+    return card_estratta;
+}
+
+void MOVE_CARD(card_t*card, card_t**listaDest, card_t**listaSorg) {
+    card_t*prior;
+    card_t*lavoro = trova_card(*listaSorg, card->ID, &prior);
+    if (!lavoro) {
+        DBG(MOVE_CARD: CARD NON TROVATA IN QUESTA LISTA);
+        exit(-1);
+    }
+    if (!prior) {
+        *listaSorg = lavoro->prox;
+    }
+    else {
+        prior->prox = lavoro->prox;
+    }
+    lavoro->prox = NULL;
+
+    inserimento_lista_card(listaDest, lavoro);
+}
+
+void ACK_CARD(utente_des_t*utente) {
+    ///@todo
+    uint32_t buf;
+    ssize_t n = recv(utente->des, &buf, sizeof(uint32_t),0);
+    if (n <= 0) {
+        DBG(ACK_CARD: utente disconnesso oppurre errore di rete.);
+        exit(-1);
+    }
+    uint32_t ID = ntohl(buf); /// ID della card da spostare
+    if (DEBUG) {
+        printf("Ricevuto ACK per card %u da parte di utente %u.\n", ID, utente->utente);
+    }
+    card_t*prior = NULL;
+    card_t*card_accettata = trova_card(testaPendingCards,ID,&prior);
+    if (!card_accettata) {
+        DBG(ACK_CARD: ricevuto ACK per card non in pending);
+        exit(-1);
+    }
+    card_accettata->responsabile = utente->utente;
+    card_accettata->timestampUltimaModifica = time(NULL);
+    MOVE_CARD(card_accettata, &testaDoing, &testaPendingCards);
+
+    attesa_ack = 0;
+    SHOW_LAVAGNA();
+    if (testaToDo) {
+        // ci sono altre card in todo, le invio
+        AVAILABLE_CARD();
+    }
+    return;
+}
+
+card_t* trova_card(card_t*lista, uint32_t ID, card_t**prior) {
+    card_t *lavoro = lista;
+    card_t *prev = NULL;
+
+    while (lavoro != NULL && lavoro->ID != ID) {
         prev = lavoro;
         lavoro = lavoro->prox;
     }
